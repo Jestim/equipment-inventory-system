@@ -21,6 +21,7 @@
             { "functions": false, "classes": true, "variables": true }
         ],
         "no-restricted-globals": "off",
-        "no-shadow": "off"
+        "no-shadow": "off",
+        "no-underscore-dangle": "off"
     }
 }
