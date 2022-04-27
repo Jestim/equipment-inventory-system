@@ -1,4 +1,11 @@
-// Model
+const { model, Schema } = require('mongoose');
 
-// name - String
-// url - String
+const MakerSchema = new Schema({
+    name: { type: String, required: true, min: 1 }
+});
+
+MakerSchema.virtual('url').get(function() {
+    return `/maker/${this._id}`;
+});
+
+module.exports = model('Maker', MakerSchema);
