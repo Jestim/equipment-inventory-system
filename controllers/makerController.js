@@ -1,3 +1,6 @@
+exports.makerList = function(req, res, next) {
+    res.send('NOT IMPLEMENTED YET: maker list GET');
+};
 exports.makerCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker create GET');
 };
@@ -18,7 +21,4 @@ exports.makerUpdatePost = function(req, res, next) {
 };
 exports.makerDetail = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker detail GET');
-};
-exports.makerList = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker list GET');
 };

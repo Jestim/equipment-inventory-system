@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
+const config = require('dotenv').config();
 
 const indexRouter = require('./routes/index');
 const homeRouter = require('./routes/home');
@@ -10,6 +12,13 @@ const usersRouter = require('./routes/users');
 const equipmentRouter = require('./routes/equipment');
 
 const app = express();
+
+// Set up DB connection
+const API_KEY = process.env.MONGODB_URI;
+const connectionOptions = { useNewUrlParser: true, useUnifiedTopology: true };
+mongoose.connect(API_KEY, connectionOptions);
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

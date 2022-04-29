@@ -1,3 +1,20 @@
+const async = require('async');
+const Item = require('../models/Item');
+const Maker = require('../models/Maker');
+const Category = require('../models/Category');
+
+exports.itemList = function(req, res, next) {
+    Item.find({})
+        .populate('maker')
+        .populate('category')
+        .exec((err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.render('itemList', { title: 'Equipment', items: result });
+        });
+};
 exports.itemCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: Item create GET');
 };
@@ -18,7 +35,4 @@ exports.itemUpdatePost = function(req, res, next) {
 };
 exports.itemDetail = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: Item detail GET');
-};
-exports.itemList = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item list GET');
 };

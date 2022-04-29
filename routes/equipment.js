@@ -61,7 +61,7 @@ router.post('/category/:id/update', categoryController.categoryUpdatePost);
 router.get('/category/:id', categoryController.categoryDetail);
 
 // Get all Categories
-router.get('/category/', categoryController.categoryList);
+router.get('/categories/', categoryController.categoryList);
 
 /// ITEM INSTANCE ROUTES ///
 // Item instance create
@@ -98,6 +98,6 @@ router.post(
 router.get('/iteminstance/:id', itemInstanceController.itemInstanceDetail);
 
 // Get all Item instances
-router.get('/iteminstance/', itemInstanceController.itemInstanceList);
+router.get('/iteminstances/', itemInstanceController.itemInstanceList);
 
 module.exports = router;

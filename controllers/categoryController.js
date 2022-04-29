@@ -1,3 +1,6 @@
+exports.categoryList = function(req, res, next) {
+    res.send('NOT IMPLEMENTED YET: category list GET');
+};
 exports.categoryCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: category create GET');
 };
@@ -18,7 +21,4 @@ exports.categoryUpdatePost = function(req, res, next) {
 };
 exports.categoryDetail = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: category detail GET');
-};
-exports.categoryList = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category list GET');
 };

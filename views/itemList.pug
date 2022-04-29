@@ -1,0 +1,16 @@
+extends layout 
+
+block content 
+	h1= title 
+	hr
+
+	ul
+		each item in items 
+			li
+				.card
+					.card-body 
+						h2.card-title #[a(href=item.url) #{item.maker.name} #{item.model}] 
+						p.card-text= item.description
+				
+		else 
+			li There are no items
