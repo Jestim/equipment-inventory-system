@@ -10,6 +10,15 @@ exports.itemInstanceList = function(req, res, next) {
                 return next(err);
             }
 
+            result.sort((a, b) => {
+                const makerA = a.item.maker.name.toLowerCase();
+                const makerB = b.item.maker.name.toLowerCase();
+
+                if (makerA < makerB) return -1;
+                if (makerA > makerB) return 1;
+                return 0;
+            });
+
             res.render('itemInstanceList', {
                 title: 'Item instances',
                 itemInstances: result

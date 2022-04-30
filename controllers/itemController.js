@@ -14,6 +14,15 @@ exports.itemList = function(req, res, next) {
                 return next(err);
             }
 
+            result.sort((a, b) => {
+                const makerA = a.maker.name.toLowerCase();
+                const makerB = b.maker.name.toLowerCase();
+
+                if (makerA < makerB) return -1;
+                if (makerA > makerB) return 1;
+                return 0;
+            });
+
             res.render('itemList', { title: 'Equipment', items: result });
         });
 };
@@ -22,7 +31,10 @@ exports.itemList = function(req, res, next) {
 exports.itemDetail = function(req, res, next) {
     async.parallel({
             item: (callback) => {
-                Item.findById(req.params.id).populate('maker').exec(callback);
+                Item.findById(req.params.id)
+                    .populate('maker')
+                    .sort({ serialNumber: 1 })
+                    .exec(callback);
             },
             itemInstances: (callback) => {
                 ItemInstance.find({ item: req.params.id }).exec(callback);

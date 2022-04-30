@@ -1,16 +1,18 @@
 const Category = require('../models/Category');
 
 exports.categoryList = function(req, res, next) {
-    Category.find({}).exec((err, result) => {
-        if (err) {
-            return next(err);
-        }
+    Category.find({})
+        .sort({ name: 1 })
+        .exec((err, result) => {
+            if (err) {
+                return next(err);
+            }
 
-        res.render('categoryList', {
-            title: 'Categories',
-            categories: result
+            res.render('categoryList', {
+                title: 'Categories',
+                categories: result
+            });
         });
-    });
 };
 
 exports.categoryDetail = function(req, res, next) {

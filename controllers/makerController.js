@@ -1,16 +1,18 @@
 const Maker = require('../models/Maker');
 
 exports.makerList = function(req, res, next) {
-    Maker.find({}).exec((err, result) => {
-        if (err) {
-            return next(err);
-        }
+    Maker.find({})
+        .sort({ name: 1 })
+        .exec((err, result) => {
+            if (err) {
+                return next(err);
+            }
 
-        res.render('makerList', {
-            title: 'Makers',
-            makers: result
+            res.render('makerList', {
+                title: 'Makers',
+                makers: result
+            });
         });
-    });
 };
 exports.makerDetail = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker detail GET');
