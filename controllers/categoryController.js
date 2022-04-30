@@ -1,5 +1,20 @@
+const Category = require('../models/Category');
+
 exports.categoryList = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category list GET');
+    Category.find({}).exec((err, result) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.render('categoryList', {
+            title: 'Categories',
+            categories: result
+        });
+    });
+};
+
+exports.categoryDetail = function(req, res, next) {
+    res.send('NOT IMPLEMENTED YET: category detail GET');
 };
 exports.categoryCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: category create GET');
@@ -18,7 +33,4 @@ exports.categoryUpdateGet = function(req, res, next) {
 };
 exports.categoryUpdatePost = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: category update POST');
-};
-exports.categoryDetail = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category detail GET');
 };

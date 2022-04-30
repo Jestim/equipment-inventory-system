@@ -1,0 +1,16 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	ul 
+		each category in categories 
+			li 
+				.card 
+					.card-body
+						h2.card-title #[a(href=category.url) #{category.name}] 
+
+		else 
+			li There are no categories

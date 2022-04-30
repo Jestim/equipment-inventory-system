@@ -5,7 +5,7 @@ const MakerSchema = new Schema({
 });
 
 MakerSchema.virtual('url').get(function() {
-    return `/maker/${this._id}`;
+    return `/equipment/maker/${this._id}`;
 });
 
 module.exports = model('Maker', MakerSchema);

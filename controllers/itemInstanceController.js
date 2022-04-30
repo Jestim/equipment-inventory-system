@@ -1,5 +1,23 @@
+const Item = require('../models/Item');
+const ItemInstance = require('../models/ItemInstance');
+const Maker = require('../models/Maker');
+
 exports.itemInstanceList = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance list GET');
+    ItemInstance.find({})
+        .populate({ path: 'item', populate: { path: 'maker' } })
+        .exec((err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.render('itemInstanceList', {
+                title: 'Item instances',
+                itemInstances: result
+            });
+        });
+};
+exports.itemInstanceDetail = function(req, res, next) {
+    res.send('NOT IMPLEMENTED YET: item instance detail GET');
 };
 exports.itemInstanceCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: item instance create GET');
@@ -18,7 +36,4 @@ exports.itemInstanceUpdateGet = function(req, res, next) {
 };
 exports.itemInstanceUpdatePost = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: item instance update POST');
-};
-exports.itemInstanceDetail = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance detail GET');
 };

@@ -14,7 +14,7 @@ const ItemInstanceSchema = new Schema({
 });
 
 ItemInstanceSchema.virtual('url').get(function() {
-    return `/iteminstance/${this._id}`;
+    return `/equipment/iteminstance/${this._id}`;
 });
 
 ItemInstanceSchema.virtual('dueBackFormatted').get(function() {

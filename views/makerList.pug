@@ -1,0 +1,16 @@
+extend layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	ul 
+		each maker in makers 
+			li 
+				.card 
+					.card-body 
+						h2.card-title #[a(href=maker.url) #{maker.name}]
+
+		else 
+			li There are no makers

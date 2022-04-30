@@ -22,6 +22,10 @@ a {
     color: #00b7ff;
 }
 
+ul {
+    padding: 0;
+}
+
 li {
     list-style-type: none;
 }

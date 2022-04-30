@@ -19,7 +19,7 @@ ItemSchema.virtual('name').get(function() {
 });
 
 ItemSchema.virtual('url').get(function() {
-    return `/item/${this._id}`;
+    return `/equipment/item/${this._id}`;
 });
 
 module.exports = model('Item', ItemSchema);

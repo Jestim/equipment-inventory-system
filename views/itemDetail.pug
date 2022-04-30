@@ -1,0 +1,30 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	h2 Item instances:
+	ul
+		each itemInstance in itemInstances 
+			li 
+				.card 
+					.card-body 
+						h2.card-title #[strong Serial Number: ] #[a(href=itemInstance.url) #{itemInstance.serialNumber}]
+						ul 
+							if itemInstance.status === 'Available'
+								li.card-text #[strong Status: ] #[span.text-success #{itemInstance.status}]
+							else if itemInstance.status === 'Maintenance'
+								li.card-text #[strong Status: ] #[span.text-danger #{itemInstance.status}]
+							else
+								li.card-text #[strong Status: ] #[span.text-warning #{itemInstance.status}]
+
+							if itemInstance.status !== 'Available' && itemInstance.dueBack !== null	
+								li.card-text #[strong Due back: ] #{itemInstance.dueBackFormatted}
+							if itemInstance.status !== 'Available' && itemInstance.dueBack === null	
+								li.card-text No current due back date
+
+							
+		else 
+			li No item instances

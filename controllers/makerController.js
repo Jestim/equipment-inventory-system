@@ -1,5 +1,19 @@
+const Maker = require('../models/Maker');
+
 exports.makerList = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker list GET');
+    Maker.find({}).exec((err, result) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.render('makerList', {
+            title: 'Makers',
+            makers: result
+        });
+    });
+};
+exports.makerDetail = function(req, res, next) {
+    res.send('NOT IMPLEMENTED YET: maker detail GET');
 };
 exports.makerCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker create GET');
@@ -18,7 +32,4 @@ exports.makerUpdateGet = function(req, res, next) {
 };
 exports.makerUpdatePost = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker update POST');
-};
-exports.makerDetail = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker detail GET');
 };

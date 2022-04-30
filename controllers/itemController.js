@@ -2,7 +2,9 @@ const async = require('async');
 const Item = require('../models/Item');
 const Maker = require('../models/Maker');
 const Category = require('../models/Category');
+const ItemInstance = require('../models/ItemInstance');
 
+// Display all items
 exports.itemList = function(req, res, next) {
     Item.find({})
         .populate('maker')
@@ -14,6 +16,36 @@ exports.itemList = function(req, res, next) {
 
             res.render('itemList', { title: 'Equipment', items: result });
         });
+};
+
+// Display item deatils
+exports.itemDetail = function(req, res, next) {
+    async.parallel({
+            item: (callback) => {
+                Item.findById(req.params.id).populate('maker').exec(callback);
+            },
+            itemInstances: (callback) => {
+                ItemInstance.find({ item: req.params.id }).exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                next(err);
+            }
+
+            if (result.item === null) {
+                const err = new Error('Item not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            res.render('itemDetail', {
+                title: `${result.item.maker.name} ${result.item.model}`,
+                item: result.item,
+                itemInstances: result.itemInstances
+            });
+        }
+    );
 };
 exports.itemCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: Item create GET');
@@ -32,7 +64,4 @@ exports.itemUpdateGet = function(req, res, next) {
 };
 exports.itemUpdatePost = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: Item update POST');
-};
-exports.itemDetail = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item detail GET');
 };
