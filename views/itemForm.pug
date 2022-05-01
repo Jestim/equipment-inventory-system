@@ -9,6 +9,7 @@ block content
 		.form-group 
 			label(for='maker') Maker:
 			select#maker.form-control(type='select' placeholder='Select maker' name='maker' required='true')
+				option(value='' disabled selected hidden) Select maker
 				for maker in makers 
 					if item
 						option(value=maker._id selected=(maker._id.toString() === item.maker.toString() ? 'selected' : false)) #{maker.name}
@@ -25,6 +26,7 @@ block content
 		.form-group 
 			label(for='category') Category: 
 			select#category.form-control(type='select' placeholder='Select category' name="category" required='true') 
+				option(value='' disabled selected hidden) Select category
 				for category in categories 
 					if item	
 						option(value=category._id selected=(category._id.toString() === item.category.toString() ? 'selected' : false)) #{category.name}

@@ -2,7 +2,7 @@ extends layout
 
 block content 
 
-	h1= title 
+	h1 #[a(href=itemInstance.item.url) #{title}] 
 	p= itemInstance.item.description
 	hr
 

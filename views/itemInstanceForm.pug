@@ -1,0 +1,39 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	form(method='POST', action='')
+		.form-group 
+			label(for='item') Item:
+			select#item.form-control(type='select' placeholder='Select item' name="item" required='true') 
+				option(value='' disabled selected hidden) Select item
+				each item in items
+					if itemInstance 
+						option(value=item._id selected=(itemInstance.item.toString() === item._id.toString() ? 'selected' : false)) #{item.maker.name} #{item.model}
+					else
+						option(value=item._id) #{item.maker.name} #{item.model}
+		.form-group 
+			label(for='serialNumber') Serial Number: 
+			input#serialNumber.form-control(type='text', placeholder='Serial Number' name='serialNumber' required='true')
+		.form-group 
+			label(for='status') Status: 
+			select#status.form-control(type='select' placeholder='Status' name='status' required='true')
+				option(value='' disabled selected hidden) Select status
+				each statusOption in statusOptions
+					if itemInstance
+						option(value=statusOption selected=(itemInstance.status === statusOption ? 'selected' : false)) #{statusOption}
+					else 
+						option(value=statusOption) #{statusOption}
+		.form-group 
+			label(for='dueBack') Date when item will be available:
+			input#dueBack.form-control(type='date' name='dueBack' value=(itemInstance === undefined ? null : itemInstance.dueBackHTMLFormatted))
+		button.btn.btn-primary(type='submit') Add
+
+	hr
+	if errors 
+		ul
+			each error in errors 
+				li= error.msg
