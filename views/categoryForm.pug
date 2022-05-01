@@ -1,0 +1,19 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	form(method='POST', action='')
+		.form-group 
+			label(for='name') Category:
+			input#name.form-control(type='text' placeholder='Category' name='name' value=(category === undefined ? '' : category.name))
+
+		button.btn.btn-primary(type='submit') Add 
+
+	hr
+	if errors 
+		ul 
+			for error in errors 
+				li= error.msg

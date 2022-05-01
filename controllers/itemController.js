@@ -97,7 +97,6 @@ exports.itemCreatePost = [
 
     (req, res, next) => {
         const errors = validationResult(req);
-        console.log(errors);
 
         const item = new Item({
             maker: req.body.maker,

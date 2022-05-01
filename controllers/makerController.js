@@ -1,4 +1,5 @@
 const async = require('async');
+const { body, validationResult } = require('express-validator');
 const Maker = require('../models/Maker');
 const Item = require('../models/Item');
 
@@ -56,11 +57,42 @@ exports.makerDetail = function(req, res, next) {
 };
 
 exports.makerCreateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker create GET');
+    res.render('makerForm', {
+        title: 'Add new maker'
+    });
 };
-exports.makerCreatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker create POST');
-};
+exports.makerCreatePost = [
+    body('name', 'Maker must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+        console.log(errors);
+
+        const maker = new Maker({
+            name: req.body.name
+        });
+
+        if (!errors.isEmpty()) {
+            res.render('makerForm', {
+                title: 'Add new maker',
+                maker: maker,
+                errors: errors.array()
+            });
+        } else {
+            maker.save((err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect(maker.url);
+            });
+        }
+    }
+];
+
 exports.makerDeleteGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker delete GET');
 };

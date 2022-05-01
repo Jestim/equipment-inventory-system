@@ -1,4 +1,5 @@
 const async = require('async');
+const { body, validationResult } = require('express-validator');
 const Category = require('../models/Category');
 const Item = require('../models/Item');
 const Maker = require('../models/Maker');
@@ -58,11 +59,41 @@ exports.categoryDetail = function(req, res, next) {
 };
 
 exports.categoryCreateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category create GET');
+    res.render('categoryForm', {
+        title: 'Add new category'
+    });
 };
-exports.categoryCreatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category create POST');
-};
+exports.categoryCreatePost = [
+    body('name', 'Category must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        const category = new Category({
+            name: req.body.name
+        });
+
+        if (!errors.isEmpty()) {
+            res.render('categoryForm', {
+                title: 'Add new category',
+                category: category,
+                errors: errors.array()
+            });
+        } else {
+            category.save((err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect(category.url);
+            });
+        }
+    }
+];
+
 exports.categoryDeleteGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: category delete GET');
 };

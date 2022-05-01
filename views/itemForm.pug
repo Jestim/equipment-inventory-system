@@ -20,7 +20,7 @@ block content
 		
 		.form-group 
 			label(for='desription') Description:
-			textarea#description.form-control(type='textarea' placeholder='Description' name="description") #{item === undefined ? '' : item.description}
+			textarea#description.form-control(type='textarea' placeholder='Description' name="description" required='true') #{item === undefined ? '' : item.description}
 
 		.form-group 
 			label(for='category') Category: 
