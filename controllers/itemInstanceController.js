@@ -1,10 +1,12 @@
 const Item = require('../models/Item');
 const ItemInstance = require('../models/ItemInstance');
 const Maker = require('../models/Maker');
+const Category = require('../models/Category');
 
 exports.itemInstanceList = function(req, res, next) {
     ItemInstance.find({})
         .populate({ path: 'item', populate: { path: 'maker' } })
+        .populate({ path: 'item', populate: { path: 'category' } })
         .exec((err, result) => {
             if (err) {
                 return next(err);
@@ -26,7 +28,26 @@ exports.itemInstanceList = function(req, res, next) {
         });
 };
 exports.itemInstanceDetail = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance detail GET');
+    ItemInstance.findById(req.params.id)
+        .populate({ path: 'item', populate: { path: 'maker' } })
+        .populate({ path: 'item', populate: { path: 'category' } })
+        .populate({ path: 'item', populate: { path: 'description' } })
+        .exec((err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            if (result === null) {
+                const err = new Error('Item instance not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            res.render('itemInstanceDetail', {
+                title: `${result.item.maker.name} ${result.item.model}`,
+                itemInstance: result
+            });
+        });
 };
 exports.itemInstanceCreateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: item instance create GET');

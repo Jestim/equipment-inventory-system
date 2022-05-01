@@ -3,6 +3,7 @@ extends layout
 block content 
 
 	h1= title 
+	p= item.description
 	hr
 
 	h2 Item instances:
@@ -11,8 +12,9 @@ block content
 			li 
 				.card 
 					.card-body 
-						h2.card-title #[strong Serial Number: ] #[a(href=itemInstance.url) #{itemInstance.serialNumber}]
+						h2.card-title= title
 						ul 
+							li.card-text #[strong Serial Number: ] #[a(href=itemInstance.url) #{itemInstance.serialNumber}]
 							if itemInstance.status === 'Available'
 								li.card-text #[strong Status: ] #[span.text-success #{itemInstance.status}]
 							else if itemInstance.status === 'Maintenance'

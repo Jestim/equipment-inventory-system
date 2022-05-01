@@ -12,6 +12,7 @@ block content
 					.card-body
 						a(href=itemInstance.url) #[h2.card-title #{itemInstance.item.maker.name} #{itemInstance.item.model}]
 						ul 
+							li.card-text #[strong Category: ] #[a(href=itemInstance.item.category.url) #[span.card-title #{itemInstance.item.category.name}]]
 							li.card-text #[strong Serial Number: ] #{itemInstance.serialNumber}
 
 							if itemInstance.status === 'Available'
