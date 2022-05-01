@@ -1,0 +1,40 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	form(method='POST' action='')
+		.form-group 
+			label(for='maker') Maker:
+			select#maker.form-control(type='select' placeholder='Select maker' name='maker' required='true')
+				for maker in makers 
+					if item
+						option(value=maker._id selected=(maker._id.toString() === item.maker.toString() ? 'selected' : false)) #{maker.name}
+					else
+						option(value=maker._id) #{maker.name}
+		.form-group 
+			label(for='model') Model:
+			input#model.form-control(type='text' placeholder='Model' name='model' required='true' value=(item === undefined ? '' : item.model))
+		
+		.form-group 
+			label(for='desription') Description:
+			textarea#description.form-control(type='textarea' placeholder='Description' name="description") #{item === undefined ? '' : item.description}
+
+		.form-group 
+			label(for='category') Category: 
+			select#category.form-control(type='select' placeholder='Select category' name="category" required='true') 
+				for category in categories 
+					if item	
+						option(value=category._id selected=(category._id.toString() === item.category.toString() ? 'selected' : false)) #{category.name}
+					else 
+						option(value=category._id) #{category.name}
+
+		button.btn.btn-primary(type='submit') Add
+
+	hr
+	if errors
+		ul 
+			for error in errors 
+				li= error.msg

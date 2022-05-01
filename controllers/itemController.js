@@ -1,4 +1,5 @@
 const async = require('async');
+const { body, validationResult } = require('express-validator');
 const Item = require('../models/Item');
 const Maker = require('../models/Maker');
 const Category = require('../models/Category');
@@ -59,12 +60,88 @@ exports.itemDetail = function(req, res, next) {
         }
     );
 };
+
 exports.itemCreateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item create GET');
+    async.parallel({
+            makers: (callback) => {
+                Maker.find({}).sort({ name: 1 }).exec(callback);
+            },
+            categories: (callback) => {
+                Category.find({}).sort({ name: 1 }).exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                next(err);
+            }
+
+            res.render('itemForm', {
+                title: 'Add a new item',
+                makers: result.makers,
+                categories: result.categories
+            });
+        }
+    );
 };
-exports.itemCreatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item create POST');
-};
+
+exports.itemCreatePost = [
+    body('maker').escape(),
+    body('model', 'Model must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body('description', 'Description must not be empty')
+    .trim()
+    .isLength({ min: 1 }),
+    body('category').escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+        console.log(errors);
+
+        const item = new Item({
+            maker: req.body.maker,
+            model: req.body.model,
+            description: req.body.description,
+            category: req.body.category
+        });
+
+        // If there are validation errors, render the form with accepted values prefilled
+        if (!errors.isEmpty()) {
+            async.parallel({
+                    makers: (callback) => {
+                        Maker.find({}).sort({ name: 1 }).exec(callback);
+                    },
+                    categories: (callback) => {
+                        Category.find({}).sort({ name: 1 }).exec(callback);
+                    }
+                },
+                (err, result) => {
+                    if (err) {
+                        next(err);
+                    }
+
+                    res.render('itemForm', {
+                        title: 'Add a new item',
+                        makers: result.makers,
+                        categories: result.categories,
+                        item: item,
+                        errors: errors.array()
+                    });
+                }
+            );
+        } else {
+            item.save((err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect(item.url);
+            });
+        }
+    }
+];
+
 exports.itemDeleteGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: Item delete GET');
 };
