@@ -1,0 +1,38 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	if itemInstances.length
+		h4 You need to delete these item instances before you delete this item.
+		ul 
+			each itemInstance in itemInstances 
+				li 
+					.card 
+						.card-body
+							h2.card-title #{item.maker.name} #{item.model}
+							ul 
+								li.card-text #[strong Serial Number: ] #[a(href=itemInstance.url) #{itemInstance.serialNumber}]
+								if itemInstance.status === 'Available'
+									li.card-text #[strong Status: ] #[span.text-success #{itemInstance.status}]
+								else if itemInstance.status === 'Maintenance'
+									li.card-text #[strong Status: ] #[span.text-danger #{itemInstance.status}]
+								else
+									li.card-text #[strong Status: ] #[span.text-warning #{itemInstance.status}]
+
+								if itemInstance.status !== 'Available' && itemInstance.dueBack !== null	
+									li.card-text #[strong Due back: ] #{itemInstance.dueBackFormatted}
+								if itemInstance.status !== 'Available' && itemInstance.dueBack === null	
+									li.card-text No current due back date
+
+	else
+		h4 Do you really want to delete this item?
+		br
+		h5 #{item.maker.name} #{item.model}
+
+		form(method='POST', action='')
+			.form-group
+				input#itemId.form-control(type='hidden' name='itemId' required='true' value=item._id)
+			button.btn.btn-primary(type='submit') Delete

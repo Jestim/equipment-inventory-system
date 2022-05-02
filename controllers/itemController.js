@@ -61,6 +61,7 @@ exports.itemDetail = function(req, res, next) {
     );
 };
 
+// Create form served on Get request
 exports.itemCreateGet = function(req, res, next) {
     async.parallel({
             makers: (callback) => {
@@ -84,6 +85,7 @@ exports.itemCreateGet = function(req, res, next) {
     );
 };
 
+// New item created on post request
 exports.itemCreatePost = [
     body('maker').escape(),
     body('model', 'Model must not be empty')
@@ -141,11 +143,60 @@ exports.itemCreatePost = [
     }
 ];
 
+// Delete item page served on GET request
 exports.itemDeleteGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item delete GET');
+    async.parallel({
+            item: (callback) => {
+                Item.findById(req.params.id).populate('maker').exec(callback);
+            },
+            itemInstances: (callback) => {
+                ItemInstance.find({ item: req.params.id }).exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.render('itemDelete', {
+                title: 'Delete item',
+                item: result.item,
+                itemInstances: result.itemInstances
+            });
+        }
+    );
 };
 exports.itemDeletePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item delete POST');
+    async.parallel({
+            item: (callback) => {
+                Item.findById(req.params.id).populate('maker').exec(callback);
+            },
+            itemInstances: (callback) => {
+                ItemInstance.find({ item: req.params.id }).exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            if (result.itemInstances.length > 0) {
+                res.render('itemDelete', {
+                    title: 'Delete item',
+                    item: result.item,
+                    itemInstances: result.itemInstances
+                });
+            } else {
+                Item.findByIdAndDelete(req.body.itemId, (err) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.redirect('/equipment/');
+                });
+            }
+        }
+    );
 };
 exports.itemUpdateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: Item update GET');
