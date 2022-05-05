@@ -9,8 +9,9 @@ block content
 		.form-group 
 			label(for='name') Maker: 
 			input#name.form-control(type='text' placeholder='Maker' name='name' required='true' value=(maker === undefined ? '' : maker.name))
-
-		button.btn.btn-primary(type='submit') Add
+		if maker 
+			input#makerId.form-control(type='hidden' name='makerId' required='true' value=maker._id)
+		button.btn.btn-primary(type='submit') Submit
 
 	hr
 	if errors 

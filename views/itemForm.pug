@@ -12,7 +12,7 @@ block content
 				option(value='' disabled selected hidden) Select maker
 				for maker in makers 
 					if item
-						option(value=maker._id selected=(maker._id.toString() === item.maker.toString() ? 'selected' : false)) #{maker.name}
+						option(value=maker._id selected=(maker._id.toString() === item.maker.toString() || maker._id.toString() === item.maker._id.toString() ? 'selected' : false)) #{maker.name}
 					else
 						option(value=maker._id) #{maker.name}
 		.form-group 
@@ -29,11 +29,13 @@ block content
 				option(value='' disabled selected hidden) Select category
 				for category in categories 
 					if item	
-						option(value=category._id selected=(category._id.toString() === item.category.toString() ? 'selected' : false)) #{category.name}
+						option(value=category._id selected=(category._id.toString() === item.category.toString() || category._id.toString() === item.category._id.toString() ? 'selected' : false)) #{category.name}
 					else 
 						option(value=category._id) #{category.name}
+		if item				
+			input.form-control#itemId(type='hidden' name='itemId' required='true' value=item._id)
 
-		button.btn.btn-primary(type='submit') Add
+		button.btn.btn-primary(type='submit') Submit
 
 	hr
 	if errors

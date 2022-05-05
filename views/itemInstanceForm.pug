@@ -12,12 +12,12 @@ block content
 				option(value='' disabled selected hidden) Select item
 				each item in items
 					if itemInstance 
-						option(value=item._id selected=(itemInstance.item.toString() === item._id.toString() ? 'selected' : false)) #{item.maker.name} #{item.model}
+						option(value=item._id selected=(itemInstance.item.toString() === item._id.toString() || itemInstance.item._id.toString() === item._id.toString() ? 'selected' : false)) #{item.maker.name} #{item.model}
 					else
 						option(value=item._id) #{item.maker.name} #{item.model}
 		.form-group 
 			label(for='serialNumber') Serial Number: 
-			input#serialNumber.form-control(type='text', placeholder='Serial Number' name='serialNumber' required='true')
+			input#serialNumber.form-control(type='text', placeholder='Serial Number' name='serialNumber' required='true' value=(itemInstance.serialNumber === undefined ? '' : itemInstance.serialNumber))
 		.form-group 
 			label(for='status') Status: 
 			select#status.form-control(type='select' placeholder='Status' name='status' required='true')
@@ -30,7 +30,9 @@ block content
 		.form-group 
 			label(for='dueBack') Date when item will be available:
 			input#dueBack.form-control(type='date' name='dueBack' value=(itemInstance === undefined ? null : itemInstance.dueBackHTMLFormatted))
-		button.btn.btn-primary(type='submit') Add
+		if itemInstance
+			input#itemInstanceId(type='hidden' name='itemInstanceId' required='true' value=itemInstance._id)
+		button.btn.btn-primary(type='submit') Submit
 
 	hr
 	if errors 

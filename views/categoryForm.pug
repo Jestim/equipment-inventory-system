@@ -9,8 +9,10 @@ block content
 		.form-group 
 			label(for='name') Category:
 			input#name.form-control(type='text' placeholder='Category' name='name' value=(category === undefined ? '' : category.name))
+		if category 
+			input#categoryId.form-control(type='hidden' name='categoryId' required='true' value=category._id)
 
-		button.btn.btn-primary(type='submit') Add 
+		button.btn.btn-primary(type='submit') Submit
 
 	hr
 	if errors 

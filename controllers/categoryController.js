@@ -162,8 +162,49 @@ exports.categoryDeletePost = function(req, res, next) {
     );
 };
 exports.categoryUpdateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category update GET');
+    Category.findById(req.params.id).exec((err, result) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.render('categoryForm', {
+            title: 'Update category',
+            category: result
+        });
+    });
 };
-exports.categoryUpdatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: category update POST');
-};
+exports.categoryUpdatePost = [
+    body('name', 'Category must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        const category = new Category({
+            name: req.body.name,
+            _id: req.body.categoryId
+        });
+
+        if (!errors.isEmpty()) {
+            res.render('categoryForm', {
+                title: 'Update category',
+                category: category,
+                errors: errors.array()
+            });
+        } else {
+            Category.findByIdAndUpdate(
+                req.body.categoryId,
+                category, {},
+                (err, theCategory) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.redirect(theCategory.url);
+                }
+            );
+        }
+    }
+];

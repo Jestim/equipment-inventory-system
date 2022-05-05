@@ -1,4 +1,5 @@
 const { body, validationResult } = require('express-validator');
+const async = require('async');
 const Item = require('../models/Item');
 const ItemInstance = require('../models/ItemInstance');
 const Maker = require('../models/Maker');
@@ -156,8 +157,87 @@ exports.itemInstanceDeletePost = function(req, res, next) {
     });
 };
 exports.itemInstanceUpdateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance update GET');
+    async.parallel({
+            itemInstance: (callback) => {
+                ItemInstance.findById(req.params.id)
+                    .populate({ path: 'item', populate: { path: 'maker' } })
+                    .exec(callback);
+            },
+            items: (callback) => {
+                Item.find({}).populate('maker').exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                next(err);
+            }
+
+            result.items.sort((a, b) => {
+                const makerA = a.maker.name.toLowerCase();
+                const makerB = b.maker.name.toLowerCase();
+
+                if (makerA < makerB) return -1;
+                if (makerA > makerB) return 1;
+                return 0;
+            });
+
+            res.render('itemInstanceForm', {
+                title: 'Update item instance',
+                statusOptions: statusOptions,
+                itemInstance: result.itemInstance,
+                items: result.items
+            });
+        }
+    );
 };
-exports.itemInstanceUpdatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance update POST');
-};
+exports.itemInstanceUpdatePost = [
+    body('item', 'Item must not be empty').escape(),
+    body('serialNumber', 'Serial number must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body('status', 'Status must not be empty').escape(),
+    body('dueBack').optional({ checkFalsy: true }).isISO8601().toDate(),
+    body('itemInstanceId').escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        const itemInstance = new ItemInstance({
+            item: req.body.item,
+            serialNumber: req.body.serialNumber,
+            status: req.body.status,
+            dueBack: req.body.dueBack,
+            _id: req.body.itemInstanceId
+        });
+
+        if (!errors.isEmpty()) {
+            Item.find({})
+                .populate('maker')
+                .exec((err, result) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.render('itemInstanceForm', {
+                        title: 'Update item instance',
+                        statusOptions: statusOptions,
+                        itemInstance: itemInstance,
+                        items: result.items
+                    });
+                });
+        } else {
+            ItemInstance.findByIdAndUpdate(
+                req.body.itemInstanceId,
+                itemInstance, {},
+                (err, theItemInstance) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.redirect(theItemInstance.url);
+                }
+            );
+        }
+    }
+];

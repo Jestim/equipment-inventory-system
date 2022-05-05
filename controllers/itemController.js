@@ -199,8 +199,92 @@ exports.itemDeletePost = function(req, res, next) {
     );
 };
 exports.itemUpdateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item update GET');
+    async.parallel({
+            item: (callback) => {
+                Item.findById(req.params.id)
+                    .populate('maker')
+                    .populate('category')
+                    .exec(callback);
+            },
+            makers: (callback) => {
+                Maker.find({}).exec(callback);
+            },
+            categories: (callback) => {
+                Category.find({}).exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.render('itemForm', {
+                title: 'Update item',
+                item: result.item,
+                makers: result.makers,
+                categories: result.categories
+            });
+        }
+    );
 };
-exports.itemUpdatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: Item update POST');
-};
+exports.itemUpdatePost = [
+    body('maker').escape(),
+    body('model', 'Model must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body('description', 'Description must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body('category', 'Category must not be empty').escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        const item = new Item({
+            maker: req.body.maker,
+            model: req.body.model,
+            description: req.body.description,
+            cateogry: req.body.category,
+            _id: req.body.itemId
+        });
+
+        if (!errors.isEmpty()) {
+            async.parallel({
+                    makers: (callback) => {
+                        Maker.find({}).exec(callback);
+                    },
+                    categories: (callback) => {
+                        Category.find({}).exec(callback);
+                    }
+                },
+                (err, result) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.render('itemForm', {
+                        title: 'Update item',
+                        item: item,
+                        makers: result.makers,
+                        categories: result.categories,
+                        errors: errors.array()
+                    });
+                }
+            );
+        } else {
+            Item.findByIdAndUpdate(
+                req.body.itemId,
+                item, {},
+                (err, theItem) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.redirect(theItem.url);
+                }
+            );
+        }
+    }
+];

@@ -23,6 +23,10 @@ body {
     list-style: none;
 }
 
+.btn {
+    margin-right: 1rem;
+}
+
 a {
     color: #00b7ff;
 }

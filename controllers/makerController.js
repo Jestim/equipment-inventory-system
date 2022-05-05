@@ -154,8 +154,46 @@ exports.makerDeletePost = function(req, res, next) {
     );
 };
 exports.makerUpdateGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker update GET');
+    Maker.findById(req.params.id).exec((err, result) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.render('makerForm', {
+            title: 'Update Maker',
+            maker: result
+        });
+    });
 };
-exports.makerUpdatePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker update POST');
-};
+exports.makerUpdatePost = [
+    body('name').trim().isLength({ min: 1 }).escape(),
+    body('makerId').escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        const maker = new Maker({
+            name: req.body.name,
+            _id: req.body.makerId
+        });
+
+        if (!errors.isEmpty()) {
+            res.render('makerForm', {
+                maker: maker,
+                errors: errors.array()
+            });
+        } else {
+            Maker.findByIdAndUpdate(
+                req.body.makerId,
+                maker, {},
+                (err, theMaker) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.redirect(theMaker.url);
+                }
+            );
+        }
+    }
+];
