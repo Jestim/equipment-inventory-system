@@ -1,0 +1,26 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	if items.length 
+		h4 You need to delete these items before you delete this maker.
+		ul 
+			each item in items 
+				li 
+					.card 
+						.card-body 
+							a(href=item.url) #[h2.card-title #{item.maker.name} #{item.model}]
+							p.card-text= item.description
+
+	else 
+		h4 Do you really want to delete this maker?
+		br
+		h5= maker.name 
+
+		form(method='POST' action='')
+			.form-group 
+				input.form-control(type='hidden' name='makerId' required='true' value=maker._id)
+			button.btn.btn-primary(type='submit') Delete

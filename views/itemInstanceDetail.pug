@@ -21,3 +21,6 @@ block content
 			li.card-text #[strong Due back: ] #{itemInstance.dueBackFormatted}
 		if itemInstance.status !== 'Available' && itemInstance.dueBack === null	
 			li.card-text No current due back date
+
+	hr
+	a(href=`${itemInstance.url}/delete`) #[button.btn.btn-primary(type='button') Delete item instance]

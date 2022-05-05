@@ -50,6 +50,7 @@ exports.makerDetail = function(req, res, next) {
 
             res.render('makerDetail', {
                 title: result.maker.name,
+                maker: result.maker,
                 items: result.items
             });
         }
@@ -94,10 +95,63 @@ exports.makerCreatePost = [
 ];
 
 exports.makerDeleteGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker delete GET');
+    async.parallel({
+            maker: (callback) => {
+                Maker.findById(req.params.id).exec(callback);
+            },
+            items: (callback) => {
+                Item.find({ maker: req.params.id })
+                    .populate('maker')
+                    .exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.render('makerDelete', {
+                title: 'Delete maker',
+                maker: result.maker,
+                items: result.items
+            });
+        }
+    );
 };
+
 exports.makerDeletePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: maker delete POST');
+    async.parallel({
+            maker: (callback) => {
+                Maker.findById(req.body.makerId).exec(callback);
+            },
+            items: (callback) => {
+                Item.find({ maker: req.body.makerId })
+                    .populate('maker')
+                    .exec(callback);
+            }
+        },
+        (err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            if (result.items.length > 0) {
+                res.render('makerDelete', {
+                    title: 'Delete maker',
+                    maker: result.maker,
+                    items: result.items
+                });
+            }
+
+            Maker.findByIdAndDelete(req.body.makerId, (err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect('/equipment/makers');
+            });
+        }
+    );
 };
 exports.makerUpdateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: maker update GET');

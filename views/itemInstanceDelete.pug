@@ -1,0 +1,34 @@
+extends layout 
+
+block content 
+
+	h1= title 
+	hr
+
+	h4 Do you really want to delete this item instance?
+	br
+
+	.card 
+		.card-body 
+
+			h2.card-title #[a(href=itemInstance.item.url) #{itemInstance.item.maker.name} #{itemInstance.item.model}]
+			ul 	
+				li.card-text #[strong Category: ] #[a(href=itemInstance.item.category.url) #[span.card-title #{itemInstance.item.category.name}]]
+				li.card-text #[strong Serial Number: ] #{itemInstance.serialNumber}
+
+				if itemInstance.status === 'Available'
+					li.card-text #[strong Status: ] #[span.text-success #{itemInstance.status}]
+				else if itemInstance.status === 'Maintenance'
+					li.card-text #[strong Status: ] #[span.text-danger #{itemInstance.status}]
+				else
+					li.card-text #[strong Status: ] #[span.text-warning #{itemInstance.status}]
+				
+				if itemInstance.status !== 'Available' && itemInstance.dueBack !== null	
+					li.card-text #[strong Due back: ] #{itemInstance.dueBackFormatted}
+				if itemInstance.status !== 'Available' && itemInstance.dueBack === null	
+					li.card-text No current due back date
+
+	form(method='POST' action='')
+		.form-group 
+			input.form-control(type='hidden' name='itemInstanceId' required='true' value=itemInstance._id)
+		button.btn.btn-primary(type='submit') Delete

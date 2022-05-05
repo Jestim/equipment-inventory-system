@@ -131,10 +131,29 @@ exports.itemInstanceCreatePost = [
     }
 ];
 exports.itemInstanceDeleteGet = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance delete GET');
+    ItemInstance.findById(req.params.id)
+        .populate({ path: 'item', populate: { path: 'maker' } })
+        .populate({ path: 'item', populate: { path: 'category' } })
+        .populate({ path: 'item', populate: { path: 'description' } })
+        .exec((err, result) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.render('itemInstanceDelete', {
+                title: 'Delete item instance',
+                itemInstance: result
+            });
+        });
 };
 exports.itemInstanceDeletePost = function(req, res, next) {
-    res.send('NOT IMPLEMENTED YET: item instance delete POST');
+    ItemInstance.findByIdAndDelete(req.body.itemInstanceId, (err) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.redirect('/equipment/itemInstances');
+    });
 };
 exports.itemInstanceUpdateGet = function(req, res, next) {
     res.send('NOT IMPLEMENTED YET: item instance update GET');
