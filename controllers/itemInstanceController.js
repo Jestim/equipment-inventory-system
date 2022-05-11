@@ -19,8 +19,13 @@ exports.itemInstanceList = function(req, res, next) {
                 const makerA = a.item.maker.name.toLowerCase();
                 const makerB = b.item.maker.name.toLowerCase();
 
+                const modelA = a.item.model.toLowerCase();
+                const modelB = b.item.model.toLowerCase();
+
                 if (makerA < makerB) return -1;
                 if (makerA > makerB) return 1;
+                if (modelA < modelB) return -1;
+                if (modelA > modelB) return 1;
                 return 0;
             });
 
@@ -52,8 +57,11 @@ exports.itemInstanceDetail = function(req, res, next) {
             });
         });
 };
+
 exports.itemInstanceCreateGet = function(req, res, next) {
     Item.find({})
+        .collation({ locale: 'en' })
+        .sort({ model: 1 })
         .populate('maker')
         .exec((err, result) => {
             if (err) {
@@ -97,6 +105,8 @@ exports.itemInstanceCreatePost = [
 
         if (!errors.isEmpty()) {
             Item.find({})
+                .collation({ locale: 'en' })
+                .sort({ model: 1 })
                 .populate('maker')
                 .exec((err, result) => {
                     if (err) {
@@ -131,6 +141,7 @@ exports.itemInstanceCreatePost = [
         }
     }
 ];
+
 exports.itemInstanceDeleteGet = function(req, res, next) {
     ItemInstance.findById(req.params.id)
         .populate({ path: 'item', populate: { path: 'maker' } })
@@ -148,7 +159,7 @@ exports.itemInstanceDeleteGet = function(req, res, next) {
         });
 };
 exports.itemInstanceDeletePost = function(req, res, next) {
-    ItemInstance.findByIdAndDelete(req.body.itemInstanceId, (err) => {
+    ItemInstance.findByIdAndDelete(req.params.id, (err) => {
         if (err) {
             return next(err);
         }
@@ -156,6 +167,7 @@ exports.itemInstanceDeletePost = function(req, res, next) {
         res.redirect('/equipment/itemInstances');
     });
 };
+
 exports.itemInstanceUpdateGet = function(req, res, next) {
     async.parallel({
             itemInstance: (callback) => {
@@ -164,7 +176,11 @@ exports.itemInstanceUpdateGet = function(req, res, next) {
                     .exec(callback);
             },
             items: (callback) => {
-                Item.find({}).populate('maker').exec(callback);
+                Item.find({})
+                    .collation({ locale: 'en' })
+                    .sort({ model: 1 })
+                    .populate('maker')
+                    .exec(callback);
             }
         },
         (err, result) => {
@@ -213,6 +229,8 @@ exports.itemInstanceUpdatePost = [
 
         if (!errors.isEmpty()) {
             Item.find({})
+                .collation({ locale: 'en' })
+                .sort({ model: 1 })
                 .populate('maker')
                 .exec((err, result) => {
                     if (err) {

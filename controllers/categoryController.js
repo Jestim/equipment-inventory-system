@@ -7,6 +7,7 @@ const Maker = require('../models/Maker');
 // List all categories
 exports.categoryList = function(req, res, next) {
     Category.find({})
+        .collation({ locale: 'en' })
         .sort({ name: 1 })
         .exec((err, result) => {
             if (err) {
@@ -29,6 +30,8 @@ exports.categoryDetail = function(req, res, next) {
             items: (callback) => {
                 Item.find({ category: req.params.id })
                     .populate('maker')
+                    .collation({ locale: 'en' })
+                    .sort({ maker: 1, model: 1 })
                     .exec(callback);
             }
         },
@@ -42,15 +45,6 @@ exports.categoryDetail = function(req, res, next) {
                 err.status = 404;
                 return next(err);
             }
-
-            result.items.sort((a, b) => {
-                const makerA = a.maker.name.toLowerCase();
-                const makerB = b.maker.name.toLowerCase();
-
-                if (makerA < makerB) return -1;
-                if (makerA > makerB) return 1;
-                return 0;
-            });
 
             res.render('categoryDetail', {
                 title: result.category.name,
@@ -109,6 +103,8 @@ exports.categoryDeleteGet = function(req, res, next) {
             items: (callback) => {
                 Item.find({ category: req.params.id })
                     .populate('maker')
+                    .collation({ locale: 'en' })
+                    .sort({ maker: 1, model: 1 })
                     .exec(callback);
             }
         },
@@ -135,6 +131,8 @@ exports.categoryDeletePost = function(req, res, next) {
             items: (callback) => {
                 Item.find({ category: req.params.id })
                     .populate('maker')
+                    .collation({ locale: 'en' })
+                    .sort({ maker: 1, model: 1 })
                     .exec(callback);
             }
         },
@@ -151,7 +149,7 @@ exports.categoryDeletePost = function(req, res, next) {
                 });
             }
 
-            Category.findByIdAndDelete(req.body.categoryId, (err) => {
+            Category.findByIdAndDelete(req.params.id, (err) => {
                 if (err) {
                     return next(err);
                 }
@@ -161,6 +159,7 @@ exports.categoryDeletePost = function(req, res, next) {
         }
     );
 };
+
 exports.categoryUpdateGet = function(req, res, next) {
     Category.findById(req.params.id).exec((err, result) => {
         if (err) {
@@ -173,11 +172,13 @@ exports.categoryUpdateGet = function(req, res, next) {
         });
     });
 };
+
 exports.categoryUpdatePost = [
     body('name', 'Category must not be empty')
     .trim()
     .isLength({ min: 1 })
     .escape(),
+    body('categoryId').escape(),
 
     (req, res, next) => {
         const errors = validationResult(req);

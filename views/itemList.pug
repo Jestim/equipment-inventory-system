@@ -10,7 +10,11 @@ block content
 				.card
 					.card-body 
 						h2.card-title #[a(href=item.url) #{item.maker.name} #{item.model}] 
-						p.card-text= item.description
+						ul
+							li.card-text #[strong Description:] #{item.description}
+							li.card-text #[strong Category:] #[a(href=item.category.url) #{item.category.name}]
+						
+						
 				
 		else 
 			li There are no items

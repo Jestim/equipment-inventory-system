@@ -5,6 +5,7 @@ const Item = require('../models/Item');
 
 exports.makerList = function(req, res, next) {
     Maker.find({})
+        .collation({ locale: 'en' })
         .sort({ name: 1 })
         .exec((err, result) => {
             if (err) {
@@ -25,6 +26,8 @@ exports.makerDetail = function(req, res, next) {
             items: (callback) => {
                 Item.find({ maker: req.params.id })
                     .populate('maker')
+                    .collation({ locale: 'en' })
+                    .sort({ model: 1 })
                     .exec(callback);
             }
         },
@@ -38,15 +41,6 @@ exports.makerDetail = function(req, res, next) {
                 err.status = 404;
                 return next(err);
             }
-
-            result.items.sort((a, b) => {
-                const makerA = a.maker.name.toLowerCase();
-                const makerB = b.maker.name.toLowerCase();
-
-                if (makerA < makerB) return -1;
-                if (makerA > makerB) return 1;
-                return 0;
-            });
 
             res.render('makerDetail', {
                 title: result.maker.name,
@@ -62,6 +56,7 @@ exports.makerCreateGet = function(req, res, next) {
         title: 'Add new maker'
     });
 };
+
 exports.makerCreatePost = [
     body('name', 'Maker must not be empty')
     .trim()
@@ -102,6 +97,8 @@ exports.makerDeleteGet = function(req, res, next) {
             items: (callback) => {
                 Item.find({ maker: req.params.id })
                     .populate('maker')
+                    .collation({ locale: 'en' })
+                    .sort({ model: 1 })
                     .exec(callback);
             }
         },
@@ -122,11 +119,13 @@ exports.makerDeleteGet = function(req, res, next) {
 exports.makerDeletePost = function(req, res, next) {
     async.parallel({
             maker: (callback) => {
-                Maker.findById(req.body.makerId).exec(callback);
+                Maker.findById(req.params.id).exec(callback);
             },
             items: (callback) => {
-                Item.find({ maker: req.body.makerId })
+                Item.find({ maker: req.params.id })
                     .populate('maker')
+                    .collation({ locale: 'en' })
+                    .sort({ model: 1 })
                     .exec(callback);
             }
         },
@@ -143,7 +142,7 @@ exports.makerDeletePost = function(req, res, next) {
                 });
             }
 
-            Maker.findByIdAndDelete(req.body.makerId, (err) => {
+            Maker.findByIdAndDelete(req.params.id, (err) => {
                 if (err) {
                     return next(err);
                 }

@@ -8,13 +8,11 @@ const ItemInstance = require('../models/ItemInstance');
 // Display all items
 exports.itemList = function(req, res, next) {
     Item.find({})
-        .populate('maker')
+        .collation({ locale: 'en' })
+        .sort({ model: 1 })
         .populate('category')
+        .populate('maker')
         .exec((err, result) => {
-            if (err) {
-                return next(err);
-            }
-
             result.sort((a, b) => {
                 const makerA = a.maker.name.toLowerCase();
                 const makerB = b.maker.name.toLowerCase();
@@ -24,6 +22,10 @@ exports.itemList = function(req, res, next) {
                 return 0;
             });
 
+            if (err) {
+                return next(err);
+            }
+
             res.render('itemList', { title: 'Equipment', items: result });
         });
 };
@@ -32,13 +34,12 @@ exports.itemList = function(req, res, next) {
 exports.itemDetail = function(req, res, next) {
     async.parallel({
             item: (callback) => {
-                Item.findById(req.params.id)
-                    .populate('maker')
-                    .sort({ serialNumber: 1 })
-                    .exec(callback);
+                Item.findById(req.params.id).populate('maker').exec(callback);
             },
             itemInstances: (callback) => {
-                ItemInstance.find({ item: req.params.id }).exec(callback);
+                ItemInstance.find({ item: req.params.id })
+                    .sort({ serialNumber: 1 })
+                    .exec(callback);
             }
         },
         (err, result) => {
@@ -65,10 +66,16 @@ exports.itemDetail = function(req, res, next) {
 exports.itemCreateGet = function(req, res, next) {
     async.parallel({
             makers: (callback) => {
-                Maker.find({}).sort({ name: 1 }).exec(callback);
+                Maker.find({})
+                    .collation({ locale: 'en' })
+                    .sort({ name: 1 })
+                    .exec(callback);
             },
             categories: (callback) => {
-                Category.find({}).sort({ name: 1 }).exec(callback);
+                Category.find({})
+                    .collation({ locale: 'en' })
+                    .sort({ name: 1 })
+                    .exec(callback);
             }
         },
         (err, result) => {
@@ -111,10 +118,16 @@ exports.itemCreatePost = [
         if (!errors.isEmpty()) {
             async.parallel({
                     makers: (callback) => {
-                        Maker.find({}).sort({ name: 1 }).exec(callback);
+                        Maker.find({})
+                            .collation({ locale: 'en' })
+                            .sort({ name: 1 })
+                            .exec(callback);
                     },
                     categories: (callback) => {
-                        Category.find({}).sort({ name: 1 }).exec(callback);
+                        Category.find({})
+                            .collation({ locale: 'en' })
+                            .sort({ name: 1 })
+                            .exec(callback);
                     }
                 },
                 (err, result) => {
@@ -207,10 +220,16 @@ exports.itemUpdateGet = function(req, res, next) {
                     .exec(callback);
             },
             makers: (callback) => {
-                Maker.find({}).exec(callback);
+                Maker.find({})
+                    .collation({ locale: 'en' })
+                    .sort({ name: 1 })
+                    .exec(callback);
             },
             categories: (callback) => {
-                Category.find({}).exec(callback);
+                Category.find({})
+                    .collation({ locale: 'en' })
+                    .sort({ name: 1 })
+                    .exec(callback);
             }
         },
         (err, result) => {
@@ -238,6 +257,7 @@ exports.itemUpdatePost = [
     .isLength({ min: 1 })
     .escape(),
     body('category', 'Category must not be empty').escape(),
+    body('itemId').escape(),
 
     (req, res, next) => {
         const errors = validationResult(req);
@@ -253,10 +273,16 @@ exports.itemUpdatePost = [
         if (!errors.isEmpty()) {
             async.parallel({
                     makers: (callback) => {
-                        Maker.find({}).exec(callback);
+                        Maker.find({})
+                            .collation({ locale: 'en' })
+                            .sort({ name: 1 })
+                            .exec(callback);
                     },
                     categories: (callback) => {
-                        Category.find({}).exec(callback);
+                        Category.find({})
+                            .collation({ locale: 'en' })
+                            .sort({ name: 1 })
+                            .exec(callback);
                     }
                 },
                 (err, result) => {

@@ -17,7 +17,7 @@ block content
 						option(value=item._id) #{item.maker.name} #{item.model}
 		.form-group 
 			label(for='serialNumber') Serial Number: 
-			input#serialNumber.form-control(type='text', placeholder='Serial Number' name='serialNumber' required='true' value=(itemInstance.serialNumber === undefined ? '' : itemInstance.serialNumber))
+			input#serialNumber.form-control(type='text', placeholder='Serial Number' name='serialNumber' required='true' value=(itemInstance === undefined ? '' : itemInstance.serialNumber))
 		.form-group 
 			label(for='status') Status: 
 			select#status.form-control(type='select' placeholder='Status' name='status' required='true')
