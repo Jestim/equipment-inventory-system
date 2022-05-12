@@ -1,5 +1,6 @@
 const async = require('async');
 const { body, validationResult } = require('express-validator');
+const config = require('dotenv').config();
 const Item = require('../models/Item');
 const Maker = require('../models/Maker');
 const Category = require('../models/Category');
@@ -139,6 +140,7 @@ exports.itemCreatePost = [
                         title: 'Add a new item',
                         makers: result.makers,
                         categories: result.categories,
+                        selectedCategory: item.category,
                         item: item,
                         errors: errors.array()
                     });
@@ -179,38 +181,62 @@ exports.itemDeleteGet = function(req, res, next) {
         }
     );
 };
-exports.itemDeletePost = function(req, res, next) {
-    async.parallel({
-            item: (callback) => {
-                Item.findById(req.params.id).populate('maker').exec(callback);
-            },
-            itemInstances: (callback) => {
-                ItemInstance.find({ item: req.params.id }).exec(callback);
-            }
-        },
-        (err, result) => {
-            if (err) {
-                return next(err);
-            }
+exports.itemDeletePost = [
+    body('itemId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
-            if (result.itemInstances.length > 0) {
-                res.render('itemDelete', {
-                    title: 'Delete item',
-                    item: result.item,
-                    itemInstances: result.itemInstances
-                });
-            } else {
-                Item.findByIdAndDelete(req.body.itemId, (err) => {
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            async.parallel({
+                    item: (callback) => {
+                        Item.findById(req.body.itemId)
+                            .populate('maker')
+                            .exec(callback);
+                    },
+                    itemInstances: (callback) => {
+                        ItemInstance.find({ item: req.body.itemId }).exec(
+                            callback
+                        );
+                    }
+                },
+                (err, result) => {
                     if (err) {
                         return next(err);
                     }
 
-                    res.redirect('/equipment/');
-                });
-            }
+                    if (result.itemInstances.length > 0) {
+                        res.render('itemDelete', {
+                            title: 'Delete item',
+                            item: result.item,
+                            itemInstances: result.itemInstances,
+                            errors: errors.array()
+                        });
+                    }
+
+                    res.render('itemDelete', {
+                        title: 'Delete item',
+                        item: result.item,
+                        itemInstances: result.itemInstances,
+                        errors: errors.array()
+                    });
+                }
+            );
+        } else {
+            Item.findByIdAndDelete(req.body.itemId, (err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect('/equipment/');
+            });
         }
-    );
-};
+    }
+];
+
 exports.itemUpdateGet = function(req, res, next) {
     async.parallel({
             item: (callback) => {
@@ -241,11 +267,14 @@ exports.itemUpdateGet = function(req, res, next) {
                 title: 'Update item',
                 item: result.item,
                 makers: result.makers,
-                categories: result.categories
+                categories: result.categories,
+                selectedCategory: result.item.category._id,
+                updating: true
             });
         }
     );
 };
+
 exports.itemUpdatePost = [
     body('maker').escape(),
     body('model', 'Model must not be empty')
@@ -258,6 +287,9 @@ exports.itemUpdatePost = [
     .escape(),
     body('category', 'Category must not be empty').escape(),
     body('itemId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
     (req, res, next) => {
         const errors = validationResult(req);
@@ -266,7 +298,7 @@ exports.itemUpdatePost = [
             maker: req.body.maker,
             model: req.body.model,
             description: req.body.description,
-            cateogry: req.body.category,
+            category: req.body.category,
             _id: req.body.itemId
         });
 
@@ -295,6 +327,7 @@ exports.itemUpdatePost = [
                         item: item,
                         makers: result.makers,
                         categories: result.categories,
+                        selectedCategory: item.category,
                         errors: errors.array()
                     });
                 }

@@ -32,7 +32,17 @@ block content
 		br
 		h5 #{item.maker.name} #{item.model}
 
+
 		form(method='POST', action='')
 			.form-group
 				input#itemId.form-control(type='hidden' name='itemId' required='true' value=item._id)
+			.form-group 
+				label(for=password) Enter password to delete item: 
+				input#password.form-control(type='password' name='password' required='true')
 			button.btn.btn-primary(type='submit') Delete
+
+	hr
+	if errors
+		ul 
+			for error in errors 
+				li= error.msg
