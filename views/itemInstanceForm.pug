@@ -32,6 +32,9 @@ block content
 			input#dueBack.form-control(type='date' name='dueBack' value=(itemInstance === undefined ? null : itemInstance.dueBackHTMLFormatted))
 		if itemInstance
 			input#itemInstanceId(type='hidden' name='itemInstanceId' required='true' value=itemInstance._id)
+			.form-group 
+				label(for='password') Enter password to update item instance: 
+				input#password.form-control(type='password' name='password' required='true')
 		button.btn.btn-primary(type='submit') Submit
 
 	hr

@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const async = require('async');
+const config = require('dotenv').config();
 const Item = require('../models/Item');
 const ItemInstance = require('../models/ItemInstance');
 const Maker = require('../models/Maker');
@@ -158,16 +159,42 @@ exports.itemInstanceDeleteGet = function(req, res, next) {
             });
         });
 };
-exports.itemInstanceDeletePost = function(req, res, next) {
-    ItemInstance.findByIdAndDelete(req.params.id, (err) => {
-        if (err) {
-            return next(err);
+exports.itemInstanceDeletePost = [
+    body('itemInstanceId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            ItemInstance.findById(req.params.id)
+                .populate({ path: 'item', populate: { path: 'maker' } })
+                .populate({ path: 'item', populate: { path: 'category' } })
+                .populate({ path: 'item', populate: { path: 'description' } })
+                .exec((err, result) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.render('itemInstanceDelete', {
+                        title: 'Delete item instance',
+                        itemInstance: result,
+                        errors: errors.array()
+                    });
+                });
+        } else {
+            ItemInstance.findByIdAndDelete(req.body.itemInstanceId, (err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect('/equipment/itemInstances');
+            });
         }
-
-        res.redirect('/equipment/itemInstances');
-    });
-};
-
+    }
+];
 exports.itemInstanceUpdateGet = function(req, res, next) {
     async.parallel({
             itemInstance: (callback) => {
@@ -215,6 +242,9 @@ exports.itemInstanceUpdatePost = [
     body('status', 'Status must not be empty').escape(),
     body('dueBack').optional({ checkFalsy: true }).isISO8601().toDate(),
     body('itemInstanceId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
     (req, res, next) => {
         const errors = validationResult(req);
@@ -241,7 +271,8 @@ exports.itemInstanceUpdatePost = [
                         title: 'Update item instance',
                         statusOptions: statusOptions,
                         itemInstance: itemInstance,
-                        items: result.items
+                        items: result,
+                        errors: errors.array()
                     });
                 });
         } else {

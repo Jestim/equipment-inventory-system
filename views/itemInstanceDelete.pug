@@ -31,4 +31,13 @@ block content
 	form(method='POST' action='')
 		.form-group 
 			input.form-control(type='hidden' name='itemInstanceId' required='true' value=itemInstance._id)
+		.form-group 
+			label(for='password') Enter password to delete item instance: 
+			input#password.form-control(type='password' name='password' required='true')
 		button.btn.btn-primary(type='submit') Delete
+
+	hr
+	if errors 
+		ul 
+			each error in errors 
+				li= error.msg
