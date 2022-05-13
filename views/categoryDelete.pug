@@ -21,6 +21,15 @@ block content
 		h5= category.name 
 
 		form(method='POST' action='')
-			.formgroup 
+			.form-group 
 				input.form-control(type='hidden' name='categoryId' required='true' value=category._id)
+			.form-group
+				label(for='password') Enter password to delete category:
+				input#password.form-control(type='password' name='password' required='true')
 			button.btn.btn-primary(type='submit') Delete
+
+	hr
+	if errors 
+		ul 
+			each error in errors 
+				li= error.msg

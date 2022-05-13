@@ -1,5 +1,6 @@
 const async = require('async');
 const { body, validationResult } = require('express-validator');
+const config = require('dotenv').config();
 const Category = require('../models/Category');
 const Item = require('../models/Item');
 const Maker = require('../models/Maker');
@@ -123,33 +124,51 @@ exports.categoryDeleteGet = function(req, res, next) {
 };
 
 // Handle delete category POST req and delete object from DB
-exports.categoryDeletePost = function(req, res, next) {
-    async.parallel({
-            category: (callback) => {
-                Category.findById(req.params.id).exec(callback);
-            },
-            items: (callback) => {
-                Item.find({ category: req.params.id })
-                    .populate('maker')
-                    .collation({ locale: 'en' })
-                    .sort({ maker: 1, model: 1 })
-                    .exec(callback);
-            }
-        },
-        (err, result) => {
-            if (err) {
-                return next(err);
-            }
+exports.categoryDeletePost = [
+    body('categoryId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
-            if (result.items.length > 0) {
-                res.render('categoryDelete', {
-                    title: 'Delete category',
-                    category: result.category,
-                    items: result.items
-                });
-            }
+    (req, res, next) => {
+        const errors = validationResult(req);
 
-            Category.findByIdAndDelete(req.params.id, (err) => {
+        if (!errors.isEmpty()) {
+            async.parallel({
+                    category: (callback) => {
+                        Category.findById(req.body.categoryId).exec(callback);
+                    },
+                    items: (callback) => {
+                        Item.find({ category: req.body.categoryId })
+                            .populate('maker')
+                            .collation({ locale: 'en' })
+                            .sort({ maker: 1, model: 1 })
+                            .exec(callback);
+                    }
+                },
+                (err, result) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    if (result.items.length > 0) {
+                        res.render('categoryDelete', {
+                            title: 'Delete category',
+                            category: result.category,
+                            items: result.items
+                        });
+                    }
+
+                    res.render('categoryDelete', {
+                        title: 'Delete category',
+                        category: result.category,
+                        items: result.items,
+                        errors: errors.array()
+                    });
+                }
+            );
+        } else {
+            Category.findByIdAndDelete(req.body.categoryId, (err) => {
                 if (err) {
                     return next(err);
                 }
@@ -157,8 +176,8 @@ exports.categoryDeletePost = function(req, res, next) {
                 res.redirect('/equipment/categories');
             });
         }
-    );
-};
+    }
+];
 
 exports.categoryUpdateGet = function(req, res, next) {
     Category.findById(req.params.id).exec((err, result) => {
@@ -179,6 +198,9 @@ exports.categoryUpdatePost = [
     .isLength({ min: 1 })
     .escape(),
     body('categoryId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
     (req, res, next) => {
         const errors = validationResult(req);

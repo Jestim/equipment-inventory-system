@@ -11,6 +11,9 @@ block content
 			input#name.form-control(type='text' placeholder='Category' name='name' value=(category === undefined ? '' : category.name))
 		if category 
 			input#categoryId.form-control(type='hidden' name='categoryId' required='true' value=category._id)
+			.form-group 
+				label(for='password') Enter password to update category: 
+				input#password.form-control(type='password' name='password' required='true')
 
 		button.btn.btn-primary(type='submit') Submit
 
