@@ -23,4 +23,14 @@ block content
 		form(method='POST' action='')
 			.form-group 
 				input.form-control(type='hidden' name='makerId' required='true' value=maker._id)
+			.form-group 
+				label(for='password') Enter password to delete maker:
+				input#password.form-control(type='password' name='password' required='true')
+				
 			button.btn.btn-primary(type='submit') Delete
+
+	hr
+	if errors 
+		ul 
+			each error in errors 
+				li= error.msg

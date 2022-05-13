@@ -1,5 +1,6 @@
 const async = require('async');
 const { body, validationResult } = require('express-validator');
+const config = require('dotenv').config();
 const Maker = require('../models/Maker');
 const Item = require('../models/Item');
 
@@ -116,33 +117,51 @@ exports.makerDeleteGet = function(req, res, next) {
     );
 };
 
-exports.makerDeletePost = function(req, res, next) {
-    async.parallel({
-            maker: (callback) => {
-                Maker.findById(req.params.id).exec(callback);
-            },
-            items: (callback) => {
-                Item.find({ maker: req.params.id })
-                    .populate('maker')
-                    .collation({ locale: 'en' })
-                    .sort({ model: 1 })
-                    .exec(callback);
-            }
-        },
-        (err, result) => {
-            if (err) {
-                return next(err);
-            }
+exports.makerDeletePost = [
+    body('makerId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
-            if (result.items.length > 0) {
-                res.render('makerDelete', {
-                    title: 'Delete maker',
-                    maker: result.maker,
-                    items: result.items
-                });
-            }
+    (req, res, next) => {
+        const errors = validationResult(req);
 
-            Maker.findByIdAndDelete(req.params.id, (err) => {
+        if (!errors.isEmpty()) {
+            async.parallel({
+                    maker: (callback) => {
+                        Maker.findById(req.body.makerId).exec(callback);
+                    },
+                    items: (callback) => {
+                        Item.find({ maker: req.body.makerId })
+                            .populate('maker')
+                            .collation({ locale: 'en' })
+                            .sort({ model: 1 })
+                            .exec(callback);
+                    }
+                },
+                (err, result) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    if (result.items.length > 0) {
+                        res.render('makerDelete', {
+                            title: 'Delete maker',
+                            maker: result.maker,
+                            items: result.items
+                        });
+                    }
+
+                    res.render('makerDelete', {
+                        title: 'Delete maker',
+                        maker: result.maker,
+                        items: result.items,
+                        errors: errors.array()
+                    });
+                }
+            );
+        } else {
+            Maker.findByIdAndDelete(req.body.makerId, (err) => {
                 if (err) {
                     return next(err);
                 }
@@ -150,8 +169,9 @@ exports.makerDeletePost = function(req, res, next) {
                 res.redirect('/equipment/makers');
             });
         }
-    );
-};
+    }
+];
+
 exports.makerUpdateGet = function(req, res, next) {
     Maker.findById(req.params.id).exec((err, result) => {
         if (err) {
@@ -167,6 +187,9 @@ exports.makerUpdateGet = function(req, res, next) {
 exports.makerUpdatePost = [
     body('name').trim().isLength({ min: 1 }).escape(),
     body('makerId').escape(),
+    body('password', 'Please enter the correct password').equals(
+        process.env.ADMIN_PASSWORD
+    ),
 
     (req, res, next) => {
         const errors = validationResult(req);
@@ -178,6 +201,7 @@ exports.makerUpdatePost = [
 
         if (!errors.isEmpty()) {
             res.render('makerForm', {
+                title: 'Update Maker',
                 maker: maker,
                 errors: errors.array()
             });
